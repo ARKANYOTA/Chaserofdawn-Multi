@@ -9,9 +9,9 @@ __lua__
 --raphael
 --and elza 
 function makeplayer(pl,x,y)
-	cols={7,8,11,10}
-	shadowcols={6,2,3,9}
-	cucols={1,2,3,9}
+	cols={7,10,8,11}
+	shadowcols={6,9,2,3}
+	cucols={1,9,2,3}
 	plspr={1,17}
 	return 
 	{
@@ -60,8 +60,8 @@ zone={
 pls={
 	makeplayer(0,64,30),
 	makeplayer(1,64,64),
-	makeplayer(2,64,94),
-	makeplayer(3,74,64),
+--	makeplayer(2,64,94),
+--	makeplayer(3,74,64),
 }
 
 --tile to place when blk break
@@ -108,7 +108,6 @@ function _update60()
 			p.cux=(p.x+4+p.rotx*8.1)\8
 			p.cuy=(p.y+4+p.roty*8.1)\8
 		end
-		
 		--camera
 		movecam()
 	end
@@ -117,6 +116,17 @@ end
 function _draw()
 	cls()
 	map()
+	--loop planet
+	for x=0,15 do
+		for y=0,15 do
+			sp=mget(x+112,y)
+			spr(sp,(x-16)*8,y*8)
+			
+			sp=mget(x,y)
+			spr(sp,(x+128)*8,y*8)
+		end
+	end
+	
 	for p in all(pls) do
 		--player
 		pal(7,p.col)
@@ -143,9 +153,10 @@ function _draw()
 			p.cuy*8-3,7)
 		end
 	end
+
 	print("")
-	print(pls[1].cux)
-	print(pls[1].cuy)
+	printuio(pls[1].cux,0,0)
+	printuio(pls[1].cuy,0,8)
 	drawhotbar(5,20,14)
 end
 -->8
@@ -219,14 +230,14 @@ function drawhotbar(x,y,space)
 		--sprite
 		sprui(i.t,x, posy)
 		--quantity
-		printuioutl(i.n, x+6,posy+4)
+		printuio(i.n, x+6,posy+4)
 
 		posy += space
 	end
 end
 -->8
 --ui
-function printoutl(txt,x,y,col1,col2)
+function printo(txt,x,y,col1,col2)
 	col1 = col1 or 1
 	col2 = col2 or 7
 	for ix=-1,1 do
@@ -235,10 +246,14 @@ function printoutl(txt,x,y,col1,col2)
 		end
 	end
 	print(txt,x,y,col2)
+--	cursor(peek(0x5f26),
+--								peek(0x5f27)+8)
 end
 
-function printuioutl(txt,x,y,col1, col2)
-	printoutl(txt,x+camx,y+camy,col1,col2)
+function printuio(txt,x,y,col1,col2)
+	x=x or peek(0x5f26)
+	y=y or peek(0x5f27)
+	printo(txt,x+camx,y+camy,col1,col2)
 end
 
 function sprui(sp,x,y)
