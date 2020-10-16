@@ -8,23 +8,32 @@ __lua__
 --yolwoocle
 --raphael
 --and elza 
+
+debugvar = 0
+
+
+
+
+
+
 function makeplayer(pl,x,y)
 	cols={7,8,11,10}
 	shadowcols={6,2,3,9}
 	plspr={1,17}
 	return {
-	p=pl,
-	x=y,
-	y=x,
-	sp=plspr[pl+1],
-	rot=2,
-	rotx=0,
-	roty=0,
-	cux=0,
-	cuy=0,
-	
-	col=cols[pl+1],
-	scol=shadowcols[pl+1],
+		p=pl,
+		x=y,
+		y=x,
+		sp=plspr[pl+1],
+		rot=2,
+		rotx=0,
+		roty=0,
+		cux=0,
+		cuy=0,
+		invopen=false,
+		invposcur=0,
+		col=cols[pl+1],
+		scol=shadowcols[pl+1],
 	}
 end
 
@@ -81,8 +90,14 @@ function _update60()
 	
 		for p in all(pls) do
 			--movement
-			movement(p)
-			
+			if btnp(❎,p.p)then
+				p.invopen = not p.invopen
+			end
+			if not p.invopen then
+				movement(p)
+			else
+				invnav(p)
+			end
 			--cursor
 			p.cux=(p.x+4+p.rotx*8.1)\8
 			p.cuy=(p.y+4+p.roty*8.1)\8
@@ -108,8 +123,15 @@ function _draw()
 		spr(16,p.cux*8,p.cuy*8+1)
 		pal()
 		spr(16,p.cux*8,p.cuy*8)
+		if p.invopen then
+			drawcraft(p)
+		end
+		
 	end
 	drawhotbar()
+	
+	//debugagepourlavariablenomeesielleexiste
+	print(debugvar, 100, 100, 7)
 end
 -->8
 --functions
@@ -191,9 +213,15 @@ function drawhotbar()
 	end
 end
 
+function invnav(p)
+	if(btnp(⬅️, p.p)) p.invposcur +=1
+	if(btnp(➡️, p.p)) p.invposcur -=1
+end
+
 function drawcraft(p)
-	intmenu = 0
-	
+	print(p.invposcur, 0,0)
+	spr(tools[(p.invposcur%3)+1].s, p.x+10, p.y)
+	//debugvar = tools[p.invposcur%3].s
 end
 __gfx__
 00000000066666600666666006666660077777700777777007777770077777700777777007777770077777700787997000878000000800000000000000000000
