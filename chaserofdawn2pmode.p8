@@ -8,6 +8,23 @@ __lua__
 --yolwoocle
 --raphael
 --and elza 
+function makeplayer(pl,x,y)
+	cols={1,2}
+	plspr={1,17}
+	return {
+	p=pl,
+	x=y,
+	y=x,
+	sp=plspr[pl+1],
+	rot=2,
+	rotx=0,
+	roty=0,
+	cux=0,
+	cuy=0,
+	
+	col=cols[pl+1],
+	}
+end
 
 debug="false"
 clock=0
@@ -19,26 +36,20 @@ playing=true
 camx=0
 camy=0
 
+--world data
+planet=1 --(1+)
+
+--hot cold zone
+zone={
+	x=0,
+	w=64,
+	x2=0,
+}
+
 --players
 pls={
-	{
-	p=0,
-	x=80,
-	y=40,
-	sp=1,
-	rot=2,
-	cux=0,
-	cuy=0,
-	},
-	{
-	p=1,
-	x=80,
-	y=40,
-	sp=17,
-	rot=2,
-	cux=0,
-	cuy=0,
-	},
+	makeplayer(0,64,30),
+	makeplayer(1,64,64),
 }
 -->8
 --init update
@@ -48,20 +59,18 @@ end
 
 function _update60()
 	if playing then
+	
 		for p in all(pls) do
-		--movement
+			--movement
 			movement(p)
+			
+			--cursor
+			p.cux=(p.x+4+p.rotx*8.1)\8
+			p.cuy=(p.y+4+p.roty*8.1)\8
 		end
 		
 		--camera
-		local avr_x=0
-		for p in all(pls) do
-			avr_x += p.x
-		end
-		camx=avr_x/#pls-64+4
-		camy=0--change if needed
-		camera(camx,camy)
-		
+		movecam()
 	end
 end
 -->8
@@ -69,11 +78,29 @@ function _draw()
 	cls()
 	map()
 	for p in all(pls) do
+		--player
 		spr(p.sp,p.x,p.y)
+		--cursor
+		pal(p.col,1)
+		spr(16,p.cux*8,p.cuy*8+1)
+		pal()
+		spr(16,p.cux*8,p.cuy*8)
 	end
 end
 -->8
 --functions
+
+
+function movecam()
+	local avr_x=0
+	for p in all(pls) do
+		avr_x += p.x
+	end
+	camx=avr_x/#pls-64+4
+	camy=0--change if needed
+	camera(camx,camy)
+end
+
 function solid(px,py)
   px/=8
   py/=8
@@ -88,6 +115,8 @@ function movement(p)
  	 p.x-=1
  	 end
  	p.rot=3
+ 	p.rotx=-1
+ 	p.roty=0
  end
  if btn(➡️,p.p) then
    if not (solid(p.x+7,p.y))			and 
@@ -95,6 +124,8 @@ function movement(p)
    p.x+=1
    end
  	p.rot=1
+ 	p.rotx=1
+ 	p.roty=0
  end
  if btn(⬆️,p.p) then
    if not (solid(p.x+1,p.y-1))	and 
@@ -102,6 +133,8 @@ function movement(p)
    p.y-=1
    end
   p.rot=0
+ 	p.rotx=0
+ 	p.roty=-1
  end
  if btn(⬇️,p.p) then
    if not (solid(p.x+1,p.y+8))	and 
@@ -109,6 +142,8 @@ function movement(p)
    p.y+=1
    end
   p.rot=2
+ 	p.rotx=0
+ 	p.roty=1
  end
 end
 __gfx__
