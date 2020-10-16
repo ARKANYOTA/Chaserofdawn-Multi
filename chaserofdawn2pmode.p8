@@ -43,11 +43,11 @@ pls={
 
 inv={
 //t = type, s=source, n= number
-	{t=96, s=80, n=0, name="wood"},
-	{t=97, s=81, n=0, name="stone"},
-	{t=98, s=82, n=0, name="copper"},
-	{t=99, s=83, n=0, name="coal"},
-	{t=100, s=84, n=0, name="ameth"},
+	{t=96, s=80, n=0, name="WOOD"},
+	{t=97, s=81, n=0, name="STON"},
+	{t=98, s=82, n=0, name="COPP"},
+	{t=99, s=83, n=0, name="COAL"},
+	{t=100, s=84, n=0, name="AMET"},
 }
 -->8
 --init update
@@ -122,8 +122,24 @@ function movement(p)
  end
 end
 
+function printoutl(txt, posx, posy, col1, col2)
+	col1 = col1 or 1
+	col2 = col2 or 7
+	for ix=-1,1 do
+		for iy=-1,1 do
+			print(txt,ix+posx,posy+iy,col1)
+		end
+	end
+	print(txt,posx,posy,col2)
+end
+
 function drawhotbar()
-	
+	posy = 0
+	for i in all(inv) do
+		posy += 20
+		spr(i.t,0, posy)
+		printoutl(i.n, 8,posy+3)
+	end
 end
 __gfx__
 00000000066666600666666006666660077777700777777007777770077777700777777007777770077777700787997000878000000800000000000000000000
