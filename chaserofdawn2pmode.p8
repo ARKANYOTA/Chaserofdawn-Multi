@@ -96,10 +96,11 @@ tools={
 function _init()
 
 end
+---------------------------------------------------------------
 ---------------------------------------------------------------------
 -- UPDATE
 ---------------------------------------------------------------------
-
+---------------------------------------------------------------------
 function _update60()
 	if playing then
 	
@@ -125,21 +126,40 @@ function _update60()
 			if not p.invopen then
 			--movement
 				movement(p)
-				--p.x = p.x % 1024
-				--p.y = p.y % 1024
 			else
 			--crafting menu navigation
 				invnav(p)
 			end
+			--clamp x and y
+			p.x = p.vx % 1024
+			p.vy = (p.vy+8) % 130 - 8
+			p.y = p.vy 
 
 			--cursor
-			p.vcux=((p.x+4+p.rotx*8.1)\8)
-			p.vcuy=((p.y+4+p.roty*8.1)\8)
+			p.vcux=((p.vx+4+p.rotx*8.1)\8)
+			p.vcuy=((p.vy+4+p.roty*8.1)\8)%16
 			p.cux=p.vcux%128
-			p.cuy=p.vcuy%128
+			p.cuy=p.vcuy
 		end
 		--camera
-		movecam()
+		local avr_x=0
+		for p in all(pls) do
+			avr_x += p.vx
+		end
+		camx=avr_x/#pls-64+4
+		if -64>camx then
+			camx = camx%1024
+			for p in all(pls)do
+				p.vx += 1024
+			end
+		elseif 1023<camx then
+			camx = camx%1024
+			for p in all(pls)do
+				p.vx -= 1024
+			end
+		end
+		camy=0--change if needed
+		camera(camx,camy)
 	end
 end
 -->8
@@ -166,7 +186,7 @@ function _draw()
 		--player
 		pal(7,p.col)
 		pal(6,p.scol)
-		spr(4,p.x,p.y)
+		spr(4,p.vx,p.vy)
 		pal()
 		--cursor
 		pal(7,p.cucol)
@@ -194,8 +214,10 @@ function _draw()
 	end
 
 	print("")
-	printuio(pls[1].cux,0,0)
-	printuio(pls[1].cuy,0,8)
+	printuio(pls[1].vx,0,0)
+	printuio(pls[1].vy,0,8)
+	printuio(pls[2].vx,0,16)
+	printuio(pls[2].vy,0,24)
 	drawhotbar(5,20,14)
 end
 ---------------------------------------------------------------------
@@ -228,13 +250,7 @@ function drawcraft(p)
 end
 
 function movecam()
-	local avr_x=0
-	for p in all(pls) do
-		avr_x += p.x
-	end
-	camx=avr_x/#pls-64+4
-	camy=0--change if needed
-	camera(camx,camy)
+	
 end
 
 function solid(px,py)
@@ -246,41 +262,41 @@ end
 
 function movement(p)
 	if btn(⬅️,p.p) then 
- 	 if not (solid(p.x,p.y))			and 
- 			  not (solid(p.x,p.y+7))	then 
- 	 p.x-=1
- 	 end
- 	p.rot=3
- 	p.rotx=-1
- 	p.roty=0
- end
- if btn(➡️,p.p) then
-   if not (solid(p.x+7,p.y))			and 
- 			  not (solid(p.x+7,p.y+7))	then
-   p.x+=1
-   end
- 	p.rot=1
- 	p.rotx=1
- 	p.roty=0
- end
- if btn(⬆️,p.p) then
-   if not (solid(p.x+1,p.y-1))	and 
- 			  not (solid(p.x+6,p.y-1))	then
-   p.y-=1
-   end
-  p.rot=0
- 	p.rotx=0
- 	p.roty=-1
- end
- if btn(⬇️,p.p) then
-   if not (solid(p.x+1,p.y+8))	and 
- 			  not (solid(p.x+6,p.y+8))	then
-   p.y+=1
-   end
-  p.rot=2
- 	p.rotx=0
- 	p.roty=1
- end
+ 	 	if not (solid(p.x,p.y))	and 
+ 		not (solid(p.x,p.y+7))	then 
+ 	 		p.vx-=1
+ 		end
+		p.rot=3
+		p.rotx=-1
+		p.roty=0
+ 	end
+ 	if btn(➡️,p.p) then
+		if not (solid(p.x+7,p.y)) and 
+ 		not (solid(p.x+7,p.y+7)) then
+			p.vx+=1
+		end
+		p.rot=1
+		p.rotx=1
+		p.roty=0
+ 	end
+ 	if btn(⬆️,p.p) then
+   		if not (solid(p.x+1,p.y-1))	and 
+ 		not (solid(p.x+6,p.y-1))	then
+   			p.vy-=1
+   		end
+		p.rot=0
+		p.rotx=0
+		p.roty=-1
+ 	end
+ 	if btn(⬇️,p.p) then
+  	 	if not (solid(p.x+1,p.y+8))	and 
+ 		not (solid(p.x+6,p.y+8))	then
+  	 		p.vy+=1
+   		end
+		p.rot=2
+		p.rotx=0
+		p.roty=1
+ 	end
 end
 
 function drawhotbar(x,y,space)
