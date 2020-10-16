@@ -11,6 +11,7 @@ __lua__
 function makeplayer(pl,x,y)
 	cols={7,8,11,10}
 	shadowcols={6,2,3,9}
+	cucols={1,2,3,9}
 	plspr={1,17}
 	return 
 	{
@@ -31,6 +32,7 @@ function makeplayer(pl,x,y)
 	
 	col=cols[pl+1],
 	scol=shadowcols[pl+1],
+	cucol=cucols[pl+1],
 	}
 end
 
@@ -54,11 +56,6 @@ zone={
 	x2=0,
 }
 
---block loot
-blockloot={
-	
-}
-
 --players
 pls={
 	makeplayer(0,64,30),
@@ -67,8 +64,13 @@ pls={
 	makeplayer(3,74,64),
 }
 
+--tile to place when blk break
+tilebrk=67
+
 inv={
-//t = type, s=source, n= number
+//t: item type
+//s: source blck, 
+//n: quantity
 	{t=96, s=80, n=0, name="WOOD"},
 	{t=97, s=81, n=0, name="STON"},
 	{t=98, s=82, n=0, name="COPP"},
@@ -97,7 +99,9 @@ function _update60()
 			end
 			if p.mineprogr>=100 then
 				p.mineprogr=0
-				mset(p.cux,p.cuy,67)
+				item=mget(p.cux,p.cuy)
+				mset(p.cux,p.cuy,tilebrk)
+				inv[item-79].n += 1
 			end
 			
 			--cursor
@@ -120,16 +124,29 @@ function _draw()
 		spr(4,p.x,p.y)
 		pal()
 		--cursor
-		cols={1,2,3,9}
-		pal(7,cols[p.p+1])
+		pal(7,p.cucol)
 		spr(16,p.cux*8,p.cuy*8+1)
+		sprui(17,40,40)
 		pal()
 		spr(16,p.cux*8,p.cuy*8)
+		--mining prograss bar
+		if p.mining then
+			rectfill(
+			p.cux*8-1,
+			p.cuy*8-5,
+			p.cux*8+8,
+			p.cuy*8-2,p.cucol)
+			rectfill(
+			p.cux*8,
+			p.cuy*8-4,
+			p.cux*8+p.mineprogr*0.08,
+			p.cuy*8-3,7)
+		end
 	end
 	print("")
 	print(pls[1].cux)
 	print(pls[1].cuy)
-	drawhotbar()
+	drawhotbar(5,20,14)
 end
 -->8
 --functions
@@ -189,24 +206,43 @@ function movement(p)
  end
 end
 
-function printoutl(txt, posx, posy, col1, col2)
+function drawhotbar(x,y,space)
+	posy = y
+	for i in all(inv) do
+--		--fill
+--		rectfill(camx+x-1,camy+posy-1,
+--		camx+x+8,camy+posy+8,7)
+--		sprui(i.t,x, posy)
+--		--outline
+--		rect(camx+x-2,camy+posy-2,
+--		camx+x+9,camy+posy+9,1)
+		--sprite
+		sprui(i.t,x, posy)
+		--quantity
+		printuioutl(i.n, x+6,posy+4)
+
+		posy += space
+	end
+end
+-->8
+--ui
+function printoutl(txt,x,y,col1,col2)
 	col1 = col1 or 1
 	col2 = col2 or 7
 	for ix=-1,1 do
 		for iy=-1,1 do
-			print(txt,ix+posx,posy+iy,col1)
+			print(txt,ix+x,iy+y,col1)
 		end
 	end
-	print(txt,posx,posy,col2)
+	print(txt,x,y,col2)
 end
 
-function drawhotbar()
-	posy = 0
-	for i in all(inv) do
-		posy += 20
-		spr(i.t,0, posy)
-		printoutl(i.n, 8,posy+3)
-	end
+function printuioutl(txt,x,y,col1, col2)
+	printoutl(txt,x+camx,y+camy,col1,col2)
+end
+
+function sprui(sp,x,y)
+	spr(sp,x+camx,y+camy)
 end
 __gfx__
 00000000066666600666666006666660077777700777777007777770077777700777777007777770077777700787997000878000000800000000000000000000
@@ -252,7 +288,7 @@ eeeeeeeeeeeeeeeeeeeeeeeeee88e8eeeceeecee42000000d5000000510000009800000098800220
 ee3333eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee0000440000005500000099000000ee0000000000589981dd5898d555589a91dd589dd55558aa81dd5dadd555
 e333333eeddd1eeeeddd1eeeeedd11eeeddd1eee000444400005555000099990000e8880000000005899812559a855ee55898125589955ee55995125589555ee
 e333333edddddd1edd998d1eed110d1eddee281e000034420000f5510000f9980000f882000000005558511558a552225555511559a952225588511558855222
-e311113edddddd11d998dd11d110dd11dee2881100033333000fffff000fffff000fffff0000000011555512555222ee1155551259a822ee11555512555222ee
+e133331edddddd11d998dd11d110dd11dee2881100033333000fffff000fffff000fffff0000000011555512555222ee1155551259a822ee11555512555222ee
 e111111edddd1d11d98d1981d00d1101d228ee210044342200ddf51100ddf9880099f822000000001111222222222eee1111222222222eee1111222222222eee
 e111111eddd1dd11ddd19981ddd11101d882ee21044202200dd501100dd508800998022000000000111222222222eeee111222222222eeee111222222222eeee
 ee1111eeddddd111dddd9811dddd1011dddd121144200000dd500000dd50000099800000000000001222eeeeeeeeeeee1222eeeeeeeeeeee1222eeeeeeeeeeee
