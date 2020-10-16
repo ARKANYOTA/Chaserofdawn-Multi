@@ -7,7 +7,7 @@ __lua__
 --theobosse
 --yolwoocle
 --raphael
---and elza 
+--and elza  
 function makeplayer(pl,x,y)
 	cols={7,8,11,10}
 	shadowcols={6,2,3,9}
