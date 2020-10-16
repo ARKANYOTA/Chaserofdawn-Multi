@@ -21,19 +21,19 @@ function makeplayer(pl,x,y)
 	shadowcols={6,2,3,9}
 	plspr={1,17}
 	return {
-		p=pl,
-		x=y,
-		y=x,
-		sp=plspr[pl+1],
-		rot=2,
-		rotx=0,
-		roty=0,
-		cux=0,
-		cuy=0,
-		invopen=false,
-		invposcur=0,
-		col=cols[pl+1],
-		scol=shadowcols[pl+1],
+	p=pl,
+	x=y,
+	y=x,
+	sp=plspr[pl+1],
+	rot=2,
+	rotx=0,
+	roty=0,
+	cux=0,
+	cuy=0,
+	invopen=false,
+	invposcur=0,
+	col=cols[pl+1],
+	scol=shadowcols[pl+1],
 	}
 end
 
