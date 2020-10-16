@@ -54,16 +54,17 @@ zone={
 	x2=0,
 }
 
+--block loot
+blockloot={
+	
+}
+
 --players
 pls={
 	makeplayer(0,64,30),
 	makeplayer(1,64,64),
 	makeplayer(2,64,94),
 	makeplayer(3,74,64),
-}
-
-blockloot={
-
 }
 
 inv={
@@ -89,10 +90,14 @@ function _update60()
 			
 			--mining
 			p.mining=btn(🅾️,p.p)
-			if p.mining then
+			if p.mining then		
 				p.mineprogr+=1
 			else
 				p.mineprogr=0
+			end
+			if p.mineprogr>=100 then
+				p.mineprogr=0
+				mset(p.cux,p.cuy,67)
 			end
 			
 			--cursor
@@ -121,6 +126,9 @@ function _draw()
 		pal()
 		spr(16,p.cux*8,p.cuy*8)
 	end
+	print("")
+	print(pls[1].cux)
+	print(pls[1].cuy)
 	drawhotbar()
 end
 -->8
