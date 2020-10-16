@@ -26,9 +26,6 @@ function makeplayer(pl,x,y)
 	cux=0,
 	cuy=0,
 	
-	invopen=false,
-	invposcur=0,
-
 	targ=0,
 	mining=false,
 	mineprogr=0,
@@ -71,20 +68,14 @@ pls={
 tilebrk=67
 
 inv={
---t: item type
---s: source blck, 
---n: quantity
+//t: item type
+//s: source blck, 
+//n: quantity
 	{t=96, s=80, n=0, name="WOOD"},
 	{t=97, s=81, n=0, name="STON"},
 	{t=98, s=82, n=0, name="COPP"},
 	{t=99, s=83, n=0, name="COAL"},
 	{t=100, s=84, n=0, name="AMET"},
-}
-
-tools={
-	{s=69, maxi=3,n=1,name="pick"},
-	{s=85, maxi=3,n=1,name="axe"},
-	{s=101,maxi=4,n=1,name="roket"},
 }
 -->8
 --init update
@@ -96,6 +87,8 @@ function _update60()
 	if playing then
 	
 		for p in all(pls) do
+			--movement
+			movement(p)
 			
 			--mining
 			p.mining=btn(🅾️,p.p)
@@ -111,16 +104,6 @@ function _update60()
 				inv[item-79].n += 1
 			end
 			
-			--
-			if btnp(❎,p.p) then
-				p.invopen = not p.invopen
-			end
-			if not p.invopen then
-				movement(p)
-			else
-				invnav(p)
-			end
-
 			--cursor
 			p.cux=(p.x+4+p.rotx*8.1)\8
 			p.cuy=(p.y+4+p.roty*8.1)\8
@@ -169,10 +152,6 @@ function _draw()
 			p.cux*8+p.mineprogr*0.08,
 			p.cuy*8-3,7)
 		end
-		--craftng menu
-		if p.invopen then
-			drawcraft(p)
-		end
 	end
 
 	print("")
@@ -182,19 +161,6 @@ function _draw()
 end
 -->8
 --functions
-function invnav(p)
-	if(btnp(⬅️, p.p)) p.invposcur +=1
-	if(btnp(➡️, p.p)) p.invposcur -=1
-end
-
-function drawcraft(p)
-	intmenu = 0
-	
-	print(p.invposcur, 0,0)
-	spr(tools[(p.invposcur%3)+1].s, p.x+10, p.y)
-	//debugvar = tools[p.invposcur%3].s
-end
-
 function movecam()
 	local avr_x=0
 	for p in all(pls) do
