@@ -190,9 +190,19 @@ end
 function drawcraft(p)
 	intmenu = 0
 	
-	print(p.invposcur, 0,0)
+	--print(p.invposcur, 0,0)
+	
+	if(p.y<64) then -- haut
+	rectfill(p.x-1, p.y+10, p.x+8, p.y+100, 1)
+	rect(p.x-1, p.y+10, p.x+8, p.y+19, 7)
+	spr(tools[(p.invposcur%3)+1].s, p.x, p.y+11)
+	else --bas
+	rectfill(p.x, p.y, p.x+20, p.y+10, 1)
 	spr(tools[(p.invposcur%3)+1].s, p.x+10, p.y)
-	//debugvar = tools[p.invposcur%3].s
+	
+	end
+
+
 end
 
 function movecam()
