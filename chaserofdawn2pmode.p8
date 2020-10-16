@@ -33,6 +33,15 @@ pls={
 	cuy=0,
 	},
 }
+
+inv={
+//t = type, s=source, n= number
+	{t=96, s=80, n=0, name="wood"},
+	{t=97, s=81, n=0, name="stone"},
+	{t=98, s=82, n=0, name="copper"},
+	{t=99, s=83, n=0, name="coal"},
+	{t=100, s=84, n=0, name="ameth"},
+}
 -->8
 --init update
 function _init()
@@ -53,6 +62,7 @@ function _draw()
 	for p in all(pls) do
 		spr(p.sp,p.x,p.y)
 	end
+	drawhotbar()
 end
 -->8
 --functions
@@ -92,6 +102,10 @@ function movement(p)
    end
   p.rot=2
  end
+end
+
+function drawhotbar()
+	
 end
 __gfx__
 00000000066666600666666006666660077777700777777007777770077777700777777007777770077777700787997000878000000800000000000000000000
