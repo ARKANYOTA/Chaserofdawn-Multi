@@ -44,10 +44,16 @@ pls={
 inv={
 //t = type, s=source, n= number
 	{t=96, s=80, n=0, name="WOOD"},
-	{t=97, s=81, n=0, name="STON"},
+	{t=97, s=81, n=0, name="ROCK"},
 	{t=98, s=82, n=0, name="COPP"},
 	{t=99, s=83, n=0, name="COAL"},
 	{t=100, s=84, n=0, name="AMET"},
+}
+
+tools={
+	{s=69, maxi=3,n=1,name="PICK"},
+	{s=85, maxi=3,n=1,name="AXE"},
+	{s=101,maxi=4,n=1,name="ROKET"},
 }
 -->8
 --init update
@@ -140,6 +146,11 @@ function drawhotbar()
 		spr(i.t,0, posy)
 		printoutl(i.n, 8,posy+3)
 	end
+end
+
+function drawcraft(p)
+	intmenu = 0
+	
 end
 __gfx__
 00000000066666600666666006666660077777700777777007777770077777700777777007777770077777700787997000878000000800000000000000000000
