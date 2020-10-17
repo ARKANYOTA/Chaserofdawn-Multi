@@ -75,21 +75,32 @@ pls={
 --tile to place when blk break
 tilebrk=67
 
-inv={
+items={
 --t: item type
 --s: source blck, 
 --n: quantity
-	{t=96, s=80, n=0, name="WOOD"},
-	{t=97, s=81, n=0, name="STON"},
-	{t=98, s=82, n=0, name="COPP"},
-	{t=99, s=83, n=0, name="COAL"},
-	{t=100, s=84, n=0, name="AMET"},
+	{id=1, t=96, s=80, n=0, name="WOOD"},
+	{id=2, t=97, s=81, n=0, name="STON"},
+	{id=3, t=98, s=82, n=0, name="COPP"},
+	{id=4, t=99, s=83, n=0, name="COAL"},
+	{id=5, t=100, s=84, n=0, name="AMETHYST"},
 }
 
+function getitem(id)
+	item = items[id]
+	return {id=item.id,t=item.t,s=item.s,n=item.n,name=item.name}
+end
+
+inv={}
+for i=1,5 do
+	add(inv, getitem(i))
+end
+
+
 tools={
-	{s=69, maxi=3,n=1,name="pick"},
-	{s=85, maxi=3,n=1,name="axe"},
-	{s=101,maxi=4,n=1,name="roket"},
+	{s=69, maxi=3,n=1,name="PICKAXE"},
+	{s=85, maxi=3,n=1,name="AXE"},
+	{s=101,maxi=4,n=1,name="ROCKET"},
 }
 -->8
 --init update
@@ -237,27 +248,40 @@ function drawcraft(p)
 	--print(p.invposcur, 0,0)
 	
 	if(p.y<64) then -- haut
-	rectfill(p.x-1, p.y+10, p.x+8, p.y+100, 1)
-	rect(p.x-1, p.y+10, p.x+8, p.y+19, 7)
+	rectfill(p.x-1, p.y+10, p.x+8, p.y+19, 6)
+	rect(p.x-2, p.y+9, p.x+9, p.y+20, 7)
+	--for i=0,15 do 
+	--	pal(i,1)
+	--end
+	--spr(tools[(p.invposcur%3)+1].s, p.x, p.y+13)
+	--pal()
 	spr(tools[(p.invposcur%3)+1].s, p.x, p.y+11)
+	local x=0
+	for i=2,0,-1 do 
+		rect(p.x+12+x, p.y+15+i, p.x+12+x, p.y+15-i, 1)
+		rect(p.x+12+x, p.y+14+i, p.x+12+x, p.y+14-i, 7)
+
+		rect(p.x-5-x, p.y+15+i, p.x-5-x, p.y+15-i, 1)
+		rect(p.x-5-x, p.y+14+i, p.x-5-x, p.y+14-i, 7)
+		x+=1
+	end
 	else --bas
-	rectfill(p.x, p.y, p.x+20, p.y+10, 1)
+	rectfill(p.x-1, p.y+10, p.x+8, p.y+19, 1)
+	rect(p.x-2, p.y+11, p.x+9, p.y+18, 7)
 	spr(tools[(p.invposcur%3)+1].s, p.x+10, p.y)
 	
 	end
-
-
 end
 
 function movecam()
 	
 end
 
-function solid(px,py)
-  px=px\8%128
-  py=py\8%128
-	 return fget(mget(px,py))==0x1
-	 or fget(mget(px,py))==0x3
+function solid(px,py)	
+	--if(px-1<camx or camx+129<=px)return true 
+  	px=px\8%128
+  	py=py\8%128
+	return fget(mget(px,py))==0x1 or fget(mget(px,py))==0x3
 end
 
 function movement(p)
@@ -328,8 +352,20 @@ function printo(txt,x,y,col1,col2)
 		end
 	end
 	print(txt,x,y,col2)
---	cursor(peek(0x5f26),
---								peek(0x5f27)+8)
+end
+
+function spro(sp,x,y,col)
+	col = col or 1
+	for i=0,15 do 
+		pal(i,col)
+	end
+	for ix=-1,1 do
+		for iy=-1,1 do
+			spr(sp,ix+x,iy+y)
+		end
+	end
+	pal()
+	spr(sp,x,y)
 end
 
 function printuio(txt,x,y,col1,col2)
@@ -341,6 +377,8 @@ end
 function sprui(sp,x,y)
 	spr(sp,x+camx,y+camy)
 end
+-->8
+
 __gfx__
 00000000066666600666666006666660077777700777777007777770077777700777777007777770077777700787997000878000000800000000000000000000
 00000000677775566777755667777556765555677655556776555567777655557776555555556777555567777685599700898980008080000008890000000000
