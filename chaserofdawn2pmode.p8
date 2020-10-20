@@ -33,6 +33,8 @@ function makeplayer(pl,x,y)
 	
 	invopen=false,
 	invposcur=0,
+	invreq={},
+	invselect={},
 
 	targ=0,
 	mining=false,
@@ -48,7 +50,11 @@ debug="false"
 clock=0
 
 --menus
-playing=true
+playing=false
+menuoptions={
+	"play",
+	"more",
+} 
 
 --camera
 camx=0
@@ -75,15 +81,22 @@ pls={
 --tile to place when blk break
 tilebrk=67
 
+i={
+	wood=1,
+	stone=2,
+	copper=3,
+	coal=4,
+	amethyst=5,
+}
 items={
---t: item type
---s: source blck, 
+--t: item type,
+--s: source block sprite, 
 --n: quantity
-	{id=1, t=96, s=80, n=0, name="WOOD"},
-	{id=2, t=97, s=81, n=0, name="STON"},
-	{id=3, t=98, s=82, n=0, name="COPP"},
-	{id=4, t=99, s=83, n=0, name="COAL"},
-	{id=5, t=100, s=84, n=0, name="AMETHYST"},
+	{id=1, t=96, s=80, n=40, name="WOOD"},
+	{id=2, t=97, s=81, n=40, name="STONE"},
+	{id=3, t=98, s=82, n=40, name="COPPER"},
+	{id=4, t=99, s=83, n=40, name="COAL"},
+	{id=5, t=100, s=84, n=40, name="AMETHYST"},
 }
 
 function getitem(id)
@@ -91,11 +104,134 @@ function getitem(id)
 	return {id=item.id,t=item.t,s=item.s,n=item.n,name=item.name}
 end
 
+function getloot(id)
+--returns loot that comes from block
+	return getitem(id).t
+end
+
 inv={}
 for i=1,5 do
 	add(inv, getitem(i))
 end
-
+rec={
+	pick=1,
+	axe=2,
+	rocket=3,
+}
+recipies = {
+	--s: sprite
+	{	
+		name = "PICKAXES",
+		unlocked = 1,
+		{
+			name = "WOODEN PICKAXE", 
+			s = 69,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 8},
+			}
+		},
+		{
+			name = "STONE PICKAXE", 
+			s = 70,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 12},
+				{item = items[i.stone], n = 8},
+			}
+		},
+		{
+			name = "COPPER PICKAXE", 
+			s = 71,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 12},
+				{item = items[i.stone], n = 8},
+			}
+		},
+		{
+			name = "AMETHYST PICKAXE", 
+			s = 72,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 12},
+				{item = items[i.stone], n = 8},
+			}
+		},
+	},
+	{
+		name = "AXES",
+		unlocked = 1,
+		{
+			name = "WOODEN AXE", 
+			s = 85,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 8},
+			}
+		},
+		{
+			name = "STONE AXE", 
+			s = 86,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 8},
+			}
+		},
+		{
+			name = "COPPER AXE", 
+			s = 87,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 8},
+			}
+		},
+		{
+			name = "AMETHYST AXE", 
+			s = 88,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 8},
+			}
+		},
+	},
+	{
+		name = "ROCKETS",
+		unlocked = 1,
+		{
+			name = "WOODEN ROCKET", 
+			s = 101,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 20},
+			}
+		},
+		{
+			name = "STONE ROCKET", 
+			s = 102,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 20},
+			}
+		},
+		{
+			name = "COPPER ROCKET", 
+			s = 103,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 20},
+			}
+		},
+		{
+			name = "AMETHYST ROCKET", 
+			s = 104,
+			maxi = 3,
+			req={
+				{item = items[i.wood], n = 20},
+			}
+		},
+	}
+}
 
 tools={
 	{s=69, maxi=3,n=1,name="PICKAXE"},
@@ -113,30 +249,32 @@ end
 ---------------------------------------------------------------------
 ---------------------------------------------------------------------
 function _update60()
-	if playing then
+	if not playing then
+		mainmenu()
+	else
 	
 		for p in all(pls) do
-			--mining
-			p.mining=btn(🅾️,p.p)
-			if p.mining then		
-				p.mineprogr+=1
-			else
-				p.mineprogr=0
-			end
-			if p.mineprogr>=100 then
-				p.mineprogr=0
-				item=mget(p.cux,p.cuy)
-				mset(p.cux,p.cuy,tilebrk)
-				inv[item-79].n += 1
-			end
 			
 			--crafting menu
 			if btnp(❎,p.p) then
 				p.invopen = not p.invopen
 			end
 			if not p.invopen then
-			--movement
+				--movement
 				movement(p)
+				--mining
+				p.mining=btn(🅾️,p.p)
+				if p.mining then		
+					p.mineprogr+=1
+				else
+					p.mineprogr=0
+				end
+				if p.mineprogr>=100 then
+					p.mineprogr=0
+					item=mget(p.cux,p.cuy)
+					mset(p.cux,p.cuy,tilebrk)
+					inv[item-79].n += 1
+				end
 			else
 			--crafting menu navigation
 				invnav(p)
@@ -170,8 +308,8 @@ function _update60()
 			end
 		end
 		camy=0--change if needed
-		camera(camx,camy)
 	end
+	camera(camx,camy)
 end
 -->8
 
@@ -181,55 +319,64 @@ end
 
 function _draw()
 	cls()
-	map()
-	--loop planet
-	for x=0,15 do
-		for y=0,15 do
-			sp=mget(x+112,y)
-			spr(sp,(x-16)*8,y*8)
+	if not playing then
+		drawmainmenu()
+	else
+		map()
+		--loop planet
+		for x=0,15 do
+			for y=0,15 do
+				sp=mget(x+112,y)
+				spr(sp,(x-16)*8,y*8)
+				
+				sp=mget(x,y)
+				spr(sp,(x+128)*8,y*8)
+			end
+		end
+		
+		for p in all(pls) do
+			--player
+			pal(7,p.col)
+			pal(6,p.scol)
+			spr(4,p.vx,p.vy)
+			pal()
+			--cursor
+			pal(7,p.cucol)
+			spr(16,p.vcux*8,p.vcuy*8+1)
+			sprui(17,40,40)
+			pal()
+			spr(16,p.vcux*8,p.vcuy*8)
 			
-			sp=mget(x,y)
-			spr(sp,(x+128)*8,y*8)
+			
 		end
-	end
-	
-	for p in all(pls) do
-		--player
-		pal(7,p.col)
-		pal(6,p.scol)
-		spr(4,p.vx,p.vy)
-		pal()
-		--cursor
-		pal(7,p.cucol)
-		spr(16,p.vcux*8,p.vcuy*8+1)
-		sprui(17,40,40)
-		pal()
-		spr(16,p.vcux*8,p.vcuy*8)
-		--mining prograss bar
-		if p.mining then
-			rectfill(
-			p.vcux*8-1,
-			p.vcuy*8-5,
-			p.vcux*8+8,
-			p.vcuy*8-2,p.cucol)
-			rectfill(
-			p.vcux*8,
-			p.vcuy*8-4,
-			p.vcux*8+p.mineprogr*0.08,
-			p.vcuy*8-3,7)
-		end
-		--craftng menu
-		if p.invopen then
-			drawcraft(p)
-		end
-	end
 
-	print("")
-	printuio(pls[1].vx,0,0)
-	printuio(pls[1].vy,0,8)
-	printuio(pls[2].vx,0,16)
-	printuio(pls[2].vy,0,24)
-	drawhotbar(5,20,14)
+		--ui loop
+		for p in all(pls) do
+			--crafting menu
+			if p.invopen then
+				drawcraft(p)
+			end
+			--mining prograss bar
+			if p.mining then
+				rectfill(
+				p.vcux*8-1,
+				p.vcuy*8-5,
+				p.vcux*8+8,
+				p.vcuy*8-2,p.cucol)
+				rectfill(
+				p.vcux*8,
+				p.vcuy*8-4,
+				p.vcux*8+p.mineprogr*0.08,
+				p.vcuy*8-3,7)
+			end
+		end
+
+		printuio(pls[1].vx,0,0)
+		printuio(pls[1].vy,0,8)
+		printuio(pls[2].vx,0,16)
+		printuio(pls[2].vy,0,24)
+		drawhotbar(5,20,14)
+	end
 end
 ---------------------------------------------------------------------
 -- DRAW -------------------------------------------------------------
@@ -237,39 +384,101 @@ end
 
 -->8
 --functions
+function mainmenu()
+	camy = (camy-1)%128
+	camera(camx,camy)
+	if btnp(4) or btnp(5) then
+		playing = true
+	end 
+
+end
+
+function drawmainmenu()
+	cls()
+	srand(3)
+	for i=0, 127 do
+		pset(rnd(127), rnd(127), 5)
+	end
+	srand(3)
+	for i=0, 127 do
+		pset(rnd(127), rnd(127)+128, 5)
+	end
+	btnprompt = "press 🅾️ or ❎  "
+	printo(btnprompt, 64-#btnprompt*2, 90+camy )
+	spr(166, 22, 15+camy, 10, 6)
+end
+
 function invnav(p)
-	if(btnp(⬅️, p.p)) p.invposcur +=1
-	if(btnp(➡️, p.p)) p.invposcur -=1
+	--navigation
+	if(btnp(⬅️, p.p)) p.invposcur -=1
+	if(btnp(➡️, p.p)) p.invposcur +=1
+	if(btnp(2, p.p)) recipies[((p.invposcur) % #recipies ) + 1].unlocked +=1
+	if(btnp(3, p.p)) recipies[((p.invposcur) % #recipies ) + 1].unlocked -=1
+	p.invposcur %= #recipies
+	p.invselect = recipies[p.invposcur+1]
+	p.invreq = p.invselect[p.invselect.unlocked].req
+
+	--crafting
+	if btnp(4,p.p) then 
+		cancraft = true
+		for i in all(p.invreq) do
+			if(inv[i.item.id].n < i.n) cancraft=false
+		end
+
+		if cancraft then
+			for i in all(p.invreq) do 
+				inv[i.item.id].n -= i.n
+			end
+			p.invselect.unlocked += 1 
+		end
+	end
 end
 
 function drawcraft(p)
 	intmenu = 0
-	
-	--print(p.invposcur, 0,0)
-	
-	if(p.y<64) then -- haut
-	rectfill(p.x-1, p.y+10, p.x+8, p.y+19, 6)
-	rect(p.x-2, p.y+9, p.x+9, p.y+20, 7)
-	--for i=0,15 do 
-	--	pal(i,1)
-	--end
-	--spr(tools[(p.invposcur%3)+1].s, p.x, p.y+13)
-	--pal()
-	spr(tools[(p.invposcur%3)+1].s, p.x, p.y+11)
-	local x=0
-	for i=2,0,-1 do 
-		rect(p.x+12+x, p.y+15+i, p.x+12+x, p.y+15-i, 1)
-		rect(p.x+12+x, p.y+14+i, p.x+12+x, p.y+14-i, 7)
+	offsety = 9
+	if(p.vy>72) offsety = p.vy-127
+	recipe = recipies[p.invposcur+1]
+	--rectangle
+	x1 = p.vx-2
+	y1 = p.vy+offsety
+	x2 = p.vx+9 
+	y2 = p.vy+offsety+11
+	line(x1, y2+1, x2, y2+1, p.cucol)
+	rectfill(x1, y1, x2, y2, 6)
+	rect(x1, y1, x2, y2, p.col)
+	--result
+	spr(recipe[recipe.unlocked].s, x1+2, y1+2)
+	--triangles
+	pal(1, p.cucol)
+	spr(107, x1+14, y1+3)
+	spr(107, x1-10, y1+3, 1,1,1)
+	pal()
 
-		rect(p.x-5-x, p.y+15+i, p.x-5-x, p.y+15-i, 1)
-		rect(p.x-5-x, p.y+14+i, p.x-5-x, p.y+14-i, 7)
-		x+=1
-	end
-	else --bas
-	rectfill(p.x-1, p.y+10, p.x+8, p.y+19, 1)
-	rect(p.x-2, p.y+11, p.x+9, p.y+18, 7)
-	spr(tools[(p.invposcur%3)+1].s, p.x+10, p.y)
-	
+	--required items
+	local i = 1
+	local columns = 3
+	local x = 0
+	local y = 0
+	printo("REQUIRED:", x1-10, y2+3, p.cucol)
+	for r in all(p.invreq) do
+		uy = flr(iy)
+		x3 = x2+ (15*x)-23
+		y3 = y2+(12*flr(y))+11
+		x4 = x3+7
+		y4 = y3+7
+
+		local hasallitems = false
+		if(inv[r.item.id].n >= r.n) hasallitems = true
+		local squarecolor = hasallitems and 3 or p.scol
+		rectfill(x3-1, y3-1, x4+1, y4+1, squarecolor)
+		spr(r.item.t, x3, y3)
+		--check mark
+		local textcol = hasallitems and 13 or 7
+		printo(r.n, x3+6, y3+5, p.cucol, textcol)
+		x=(x+1)%columns
+		if(i%columns==0) y+=1
+		i+=1
 	end
 end
 
@@ -344,14 +553,15 @@ end
 -->8
 --ui
 function printo(txt,x,y,col1,col2)
-	col1 = col1 or 1
-	col2 = col2 or 7
+	if(not col1)col1 = 1
+	if(not col2)col2 = 7
 	for ix=-1,1 do
 		for iy=-1,1 do
 			print(txt,ix+x,iy+y,col1)
 		end
 	end
 	print(txt,x,y,col2)
+	cursor()
 end
 
 function spro(sp,x,y,col)
@@ -377,8 +587,6 @@ end
 function sprui(sp,x,y)
 	spr(sp,x+camx,y+camy)
 end
--->8
-
 __gfx__
 00000000066666600666666006666660077777700777777007777770077777700777777007777770077777700787997000878000000800000000000000000000
 00000000677775566777755667777556765555677655556776555567777655557776555555556777555567777685599700898980008080000008890000000000
@@ -428,12 +636,12 @@ e111111edddd1d11d98d1981d00d1101d228ee210044342200ddf51100ddf9880099f82200000000
 e111111eddd1dd11ddd19981ddd11101d882ee21044202200dd501100dd508800998022000000000111222222222eeee111222222222eeee111222222222eeee
 ee1111eeddddd111dddd9811dddd1011dddd121144200000dd500000dd50000099800000000000001222eeeeeeeeeeee1222eeeeeeeeeeee1222eeeeeeeeeeee
 eee42eeee111111ee111111ee111111ee111111e42000000d5000000d50000009800000000000000222eeeeeeeeeeeee222eeeeeeeeeeeee222eeeeeeeeeeeee
-00000200000000000099999000011000000e800000044000000dd000000aa0000008800000066000ee2222ee0000000000000000000000000000000000c77f00
-0000444000dd1d0009aa9998001121100eee88000044420000ddd50000aa990000882200006677002211112e000000000000000000000000000000000ceefff0
-000424420ddddd109aa9999801122111eeee888e00424200005ddd0000a999000088220000677700212221220000000000000000000000000000000088eee888
-00424420ddddd1109a99998811221112eeee88e20342443005dd5d50089999800e2222e00c6777c0211112210000000000000000000000000000000088ee8888
-04444200d1ddd110999999802121112188ee82822234432255d5dd5588a99988ee8822eecc7777cc1222221100000000000000000000000000000000288eeeef
-44242000dd1d11109999880022111211088822802234432255ddd55588999988ee2222eecc6777cc1111111100000000000000000000000000000000222eefff
+00000200000000000099999000011000000e800000044000000dd000000aa0000008800000066000ee2222ee7000000000000000000000000000000000c77f00
+0000444000dd1d0009aa9998001121100eee88000044420000ddd50000aa990000882200006677002211112e770000000000000000000000000000000ceefff0
+000424420ddddd109aa9999801122111eeee888e00424200005ddd0000a999000088220000677700212221227770000000000000000000000000000088eee888
+00424420ddddd1109a99998811221112eeee88e20342443005dd5d50089999800e2222e00c6777c0211112217710000000000000000000000000000088ee8888
+04444200d1ddd110999999802121112188ee82822234432255d5dd5588a99988ee8822eecc7777cc1222221171000000000000000000000000000000288eeeef
+44242000dd1d11109999880022111211088822802234432255ddd55588999988ee2222eecc6777cc1111111110000000000000000000000000000000222eefff
 02420000011111008998800002211110ee8822002024440250dd5d0580999908e022220ec077770c111111110000000000000000000000000000000002222ff0
 0020000000000000088800000022110002282000200000025000000580000008e000000ec000000ce11111ee0000000000000000000000000000000000222700
 22222222bbbbbbbb00000000000000000000000000000000000000000099a8000089a900089a9800000000000022220000000000008888000003b00000cff100
