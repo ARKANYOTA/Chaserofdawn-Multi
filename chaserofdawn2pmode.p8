@@ -62,6 +62,8 @@ function makeplayer(pl,x,y)
 	debug6=nil,
 	}
 end
+--players
+num_players=0
 
 debug="false"
 clock=0
@@ -69,6 +71,7 @@ clock=0
 --menus
 playing=false
 playerselect=false
+gameover=false
 
 --camera
 camx=0
@@ -268,6 +271,9 @@ function _init()
 	for i=0, 127 do
 		add(stars,{x=rnd(127), y=rnd(127)})
 	end
+
+	--num players
+	num_players = #pls
 end
 ---------------------------------------------------------------
 ---------------------------------------------------------------------
@@ -281,66 +287,64 @@ function _update60()
 	else
 	
 		for p in all(pls) do
-			--crafting menu
-			if btnp(❎,p.p) then
-				if(not playerselect)p.invopen = not p.invopen
-			end
-			if not p.invopen then
-				--movement
-				movement(p)
-				--mining
-				ismineable = false
-				p.mining=false
-				for i in all(items) do
-					if(i.s==mget(p.cux,p.cuy)) then
-						ismineable=true
-					end
+			--death to zone
+			p.alive = mid(zone.x,p.vx+4,zone.x2) == p.vx+4
+			p.debug = p.alive
+			if p.alive then
+				--crafting menu
+				if btnp(❎,p.p) then
+					if(not playerselect)p.invopen = not p.invopen
 				end
-				if ismineable then
-					p.mining=btn(🅾️,p.p)
-				end
-				if p.mining then
-					if p.mineprogr==0 then
-						p.minecurx=p.cux
-						p.minecury=p.cuy
-						p.mineprogr+=1
-					else 
-						if (p.minecurx==p.cux and p.minecury==p.cuy) then
-							p.mineprogr+=1
-						else
-							p.mineprogr=0
+				if not p.invopen then
+					--movement
+					movement(p)
+					--mining
+					ismineable = false
+					p.mining=false
+					for i in all(items) do
+						if(i.s==mget(p.cux,p.cuy)) then
+							ismineable=true
 						end
 					end
-					
+					if ismineable then
+						p.mining=btn(🅾️,p.p)
+					end
+					if p.mining then
+						if p.mineprogr==0 then
+							p.minecurx=p.cux
+							p.minecury=p.cuy
+							p.mineprogr+=1
+						else 
+							if (p.minecurx==p.cux and p.minecury==p.cuy) then
+								p.mineprogr+=1
+							else
+								p.mineprogr=0
+							end
+						end
+						
+					else
+						p.mineprogr=0
+					end
+					if p.mineprogr>=100 then
+						p.mineprogr=0
+						item=mget(p.cux,p.cuy)
+						mset(p.cux,p.cuy,tilebrk)
+						inv[item-79].n += 1
+					end
 				else
-					p.mineprogr=0
+					--crafting menu navigation
+					invnav(p)
 				end
-				if p.mineprogr>=100 then
-					p.mineprogr=0
-					item=mget(p.cux,p.cuy)
-					mset(p.cux,p.cuy,tilebrk)
-					inv[item-79].n += 1
-				end
-			else
-				--crafting menu navigation
-				invnav(p)
-			end
-			--clamp x and y
-			p.x = p.vx % 1024
-			if(not playerselect)p.vy = (p.vy+8) % (128+8) -8
-			p.y = p.vy 
-			--cursor
-			p.vcux=((p.vx+4+p.rotx*8.1)\8)
-			p.vcuy=((p.vy+4+p.roty*8.1)\8)
-			if(not playerselect)p.cuy%=16
-			p.cux=p.vcux%128
-			p.cuy=p.vcuy
-			
-			--death to zone
-			if p.vx+4 < zone.x or zone.x2 < p.vx+4 then
-				p.debug = "AAAAAAAAAAAAA"
-			else 
-				p.debug = "kalm"
+				--clamp x and y
+				p.x = p.vx % 1024
+				if(not playerselect)p.vy = (p.vy+8) % (128+8) -8
+				p.y = p.vy 
+				--cursor
+				p.vcux=((p.vx+4+p.rotx*8.1)\8)
+				p.vcuy=((p.vy+4+p.roty*8.1)\8)
+				if(not playerselect)p.cuy%=16
+				p.cux=p.vcux%128
+				p.cuy=p.vcuy
 			end
 		end
 
@@ -375,6 +379,13 @@ function _update60()
 				p.vx -= 1024
 			end
 		end
+
+		--death 
+		dead_pls = 0
+		for p in all(pls) do
+			if(not p.alive) dead_pls += 1
+		end
+		if(dead_pls >= num_players)gameover = true ; playing = false
 	end
 	camera(camx,camy)
 end
@@ -408,13 +419,13 @@ function _draw()
 		rectfill(-127,0,zone.x+16,127,9)
 		fillp()
 		rectfill(-127,0,zone.x+8,127,10)
-		
+		rectfill(-127,0,zone.x,127,7)
 		--cold
 		fillp(░)
 		rectfill(1152,0,zone.x2-16,127,1)
 		fillp()
 		rectfill(1152,0,zone.x2-8,127,1)
-		
+		rectfill(1152,0,zone.x2,127,0)
 
 		--objects render loop
 		for p in all(pls) do
@@ -431,9 +442,6 @@ function _draw()
 			spr(16,p.vcux*8,p.vcuy*8)
 		end
 
-		--hot and cold
-		rectfill(-127,0,zone.x,127,7)
-		rectfill(1152,0,zone.x2,127,0)
 
 		--ui loop
 		for p in all(pls) do
@@ -460,7 +468,7 @@ function _draw()
 		printuio(pls[1].y,0,8)
 		printuio(pls[1].vx,0,16)
 		printuio(pls[1].vy,0,24)
-		printuio(pls[1].debug,0,30)
+		printuio(pls[1].alive,0,30)
 		drawhotbar(5,20,14)
 	end
 	printuio(debugvar, 100,100)
