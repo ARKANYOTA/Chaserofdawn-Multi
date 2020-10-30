@@ -57,6 +57,8 @@ function makeplayer(pl,x,y)
 	debug6=nil,
 	}
 end
+--players
+num_players=0
 
 debug="false"
 clock=0
@@ -269,6 +271,9 @@ function _init()
 	for i=0, 127 do
 		add(stars,{x=rnd(127), y=rnd(127)})
 	end
+
+	--num players
+	num_players = #pls
 end
 ---------------------------------------------------------------
 ---------------------------------------------------------------------
@@ -340,7 +345,6 @@ function _update60()
 				if(not playerselect)p.cuy%=16
 				p.cux=p.vcux%128
 				p.cuy=p.vcuy
-
 			end
 		end
 
@@ -375,6 +379,13 @@ function _update60()
 				p.vx -= 1024
 			end
 		end
+
+		--death 
+		dead_pls = 0
+		for p in all(pls) do
+			if(not p.alive) dead_pls += 1
+		end
+		if(dead_pls >= num_players)gameover = true ; playing = false
 	end
 	camera(camx,camy)
 end
