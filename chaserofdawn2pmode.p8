@@ -281,7 +281,16 @@ function _update60()
 				--movement
 				movement(p)
 				--mining
-				p.mining=btn(🅾️,p.p)
+				ismineable = false
+				p.mining=false
+				for i in all(items) do
+					if(i.s==mget(p.cux,p.cuy)) then
+						ismineable=true
+					end
+				end
+				if ismineable then
+					p.mining=btn(🅾️,p.p)
+				end
 				if p.mining then
 					if p.mineprogr==0 then
 						p.minecurx=p.cux
