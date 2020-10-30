@@ -64,6 +64,7 @@ debug="false"
 clock=0
 
 --menus
+titlescreen=true
 playing=false
 playerselect=false
 gameover=false
@@ -282,15 +283,19 @@ end
 ---------------------------------------------------------------------
 function _update60()
 	if not playing then
-		mainmenu()
-		playing=true
+		if titlescreen then
+			mainmenu()
+			playing=true
+		elseif gameover then
+
+		end
 	else
 	
 		for p in all(pls) do
-			--death to zone
-			p.alive = mid(zone.x,p.vx+4,zone.x2) == p.vx+4
-			p.debug = p.alive
-			if p.alive then
+			if true or p.alive then
+				--death to zone
+				--if(mid(zone.x,p.vx+4,zone.x2) != p.vx+4)p.alive=false
+
 				--crafting menu
 				if btnp(❎,p.p) then
 					if(not playerselect)p.invopen = not p.invopen
@@ -345,6 +350,8 @@ function _update60()
 				if(not playerselect)p.cuy%=16
 				p.cux=p.vcux%128
 				p.cuy=p.vcuy
+
+				
 			end
 		end
 
@@ -398,7 +405,11 @@ end
 function _draw()
 	cls()
 	if not playing then
-		drawmainmenu()
+		if titlescreen then 
+			drawmainmenu()
+		elseif gameover then
+			printuio("game over lol")
+		end
 	else
 		map()
 		--copy ends of map at the edges of the map
@@ -483,6 +494,7 @@ function mainmenu()
 	camera(camx,camy)
 	if btnp(4) or btnp(5) then
 		playing = true
+		titlescreen = false
 		playerselect = true
 	end 
 
