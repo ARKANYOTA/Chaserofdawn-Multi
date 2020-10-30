@@ -45,6 +45,14 @@ function makeplayer(pl,x,y)
 	col=cols[pl+1],
 	scol=shadowcols[pl+1],
 	cucol=cucols[pl+1],
+
+	debug=nil,
+	debug1=nil,
+	debug2=nil,
+	debug3=nil,
+	debug4=nil,
+	debug5=nil,
+	debug6=nil,
 	}
 end
 
@@ -267,10 +275,10 @@ end
 function _update60()
 	if not playing then
 		mainmenu()
+		playing=true
 	else
 	
 		for p in all(pls) do
-			
 			--crafting menu
 			if btnp(❎,p.p) then
 				if(not playerselect)p.invopen = not p.invopen
@@ -305,9 +313,18 @@ function _update60()
 			if(not playerselect)p.cuy%=16
 			p.cux=p.vcux%128
 			p.cuy=p.vcuy
+			
+			--death to zone
+			if p.vx+4 < zone.x or zone.x2 < p.vx+4 then
+				p.debug = "AAAAAAAAAAAAA"
+			else 
+				p.debug = "kalm"
+			end
 		end
 
 		if playerselect then
+			--don't move camera or zone when in 
+			--player select
 			camy= 128
 		else
 			--zone
@@ -362,6 +379,21 @@ function _draw()
 			end
 		end
 		
+		--hot and cold zone
+		--optimize if needed
+		--hot
+		fillp(░)
+		rectfill(-127,0,zone.x+16,127,9)
+		fillp()
+		rectfill(-127,0,zone.x+8,127,10)
+		
+		--cold
+		fillp(░)
+		rectfill(1152,0,zone.x2-16,127,1)
+		fillp()
+		rectfill(1152,0,zone.x2-8,127,1)
+		
+
 		--objects render loop
 		for p in all(pls) do
 			--player
@@ -377,19 +409,8 @@ function _draw()
 			spr(16,p.vcux*8,p.vcuy*8)
 		end
 
-		--hot and cold zone
-		--optimize if needed
-		--hot
-		fillp(░)
-		rectfill(-127,0,zone.x+16,127,9)
-		fillp()
-		rectfill(-127,0,zone.x+8,127,10)
+		--hot and cold
 		rectfill(-127,0,zone.x,127,7)
-		--cold
-		fillp(░)
-		rectfill(1152,0,zone.x2-16,127,1)
-		fillp()
-		rectfill(1152,0,zone.x2-8,127,1)
 		rectfill(1152,0,zone.x2,127,0)
 
 		--ui loop
@@ -398,7 +419,7 @@ function _draw()
 			if p.invopen then
 				drawcraft(p)
 			end
-			--mining prograss bar
+			--mining progress bar
 			if p.mining then
 				rectfill(
 				p.vcux*8-1,
@@ -417,6 +438,7 @@ function _draw()
 		printuio(pls[1].y,0,8)
 		printuio(pls[1].vx,0,16)
 		printuio(pls[1].vy,0,24)
+		printuio(pls[1].debug,0,30)
 		drawhotbar(5,20,14)
 	end
 end
