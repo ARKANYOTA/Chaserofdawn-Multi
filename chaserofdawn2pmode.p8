@@ -7,7 +7,12 @@ __lua__
 --theobosse
 --yolwoocle
 --raphael
---and elza  
+--and elza 
+debugvar=nil 
+debugvar1=nil 
+debugvar2=nil 
+debugvar3=nil 
+debugvar4=nil 
 function makeplayer(pl,x,y)
 	cols={7,10,8,11}
 	shadowcols={6,9,2,3}
@@ -84,8 +89,8 @@ zone={
 pls={
 	makeplayer(0,4*8+4,19*8),
 	makeplayer(1,10*8+4,19*8),
-	makeplayer(2,4*8+4,27*8),
-	makeplayer(3,10*8+4,27*8),
+	--makeplayer(2,4*8+4,27*8),
+	--makeplayer(3,10*8+4,27*8),
 }
 
 --tile to place when blk break
@@ -102,11 +107,11 @@ items={
 --t: item type,
 --s: source block sprite, 
 --n: quantity
-	{id=1, t=96, s=80, n=40, name="WOOD"},
-	{id=2, t=97, s=81, n=40, name="STONE"},
-	{id=3, t=98, s=82, n=40, name="COPPER"},
-	{id=4, t=99, s=83, n=40, name="COAL"},
-	{id=5, t=100, s=84, n=40, name="AMETHYST"},
+	{id=1, t=96, s=80, n=1000, name="WOOD"},
+	{id=2, t=97, s=81, n=1000, name="STONE"},
+	{id=3, t=98, s=82, n=1000, name="COPPER"},
+	{id=4, t=99, s=83, n=1000, name="COAL"},
+	{id=5, t=100, s=84, n=1000, name="AMETHYST"},
 }
 
 function getitem(id)
@@ -136,7 +141,6 @@ recipies = {
 		{
 			name = "WOODEN PICKAXE", 
 			s = 69,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 8},
 			}
@@ -144,7 +148,6 @@ recipies = {
 		{
 			name = "STONE PICKAXE", 
 			s = 70,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 12},
 				{item = items[i.stone], n = 8},
@@ -153,7 +156,6 @@ recipies = {
 		{
 			name = "COPPER PICKAXE", 
 			s = 71,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 18},
 				{item = items[i.stone], n = 10},
@@ -163,7 +165,6 @@ recipies = {
 		{
 			name = "AMETHYST PICKAXE", 
 			s = 72,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 20},
 				{item = items[i.stone], n = 14},
@@ -178,7 +179,6 @@ recipies = {
 		{
 			name = "WOODEN AXE", 
 			s = 85,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 8},
 			}
@@ -186,7 +186,6 @@ recipies = {
 		{
 			name = "STONE AXE", 
 			s = 86,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 8},
 			}
@@ -194,7 +193,6 @@ recipies = {
 		{
 			name = "COPPER AXE", 
 			s = 87,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 8},
 			}
@@ -202,7 +200,6 @@ recipies = {
 		{
 			name = "AMETHYST AXE", 
 			s = 88,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 8},
 			}
@@ -214,7 +211,6 @@ recipies = {
 		{
 			name = "WOODEN ROCKET", 
 			s = 101,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 20},
 			}
@@ -222,7 +218,6 @@ recipies = {
 		{
 			name = "STONE ROCKET", 
 			s = 102,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 20},
 			}
@@ -230,7 +225,6 @@ recipies = {
 		{
 			name = "COPPER ROCKET", 
 			s = 103,
-			maxi = 3,
 			req={
 				{item = items[i.wood], n = 20},
 			}
@@ -238,7 +232,13 @@ recipies = {
 		{
 			name = "AMETHYST ROCKET", 
 			s = 104,
-			maxi = 3,
+			req={
+				{item = items[i.wood], n = 20},
+			}
+		},
+		{
+			name = "DIAMS ROCKET", 
+			s = 105,
 			req={
 				{item = items[i.wood], n = 20},
 			}
@@ -463,6 +463,9 @@ function _draw()
 		printuio(pls[1].debug,0,30)
 		drawhotbar(5,20,14)
 	end
+	printuio(debugvar, 100,100)
+	printuio(debugvar1, 100,110)
+	printuio(debugvar2, 100,120)
 end
 ---------------------------------------------------------------------
 -- DRAW -------------------------------------------------------------
@@ -493,19 +496,25 @@ end
 
 function invnav(p)
 	--navigation
+	
 	if(btnp(⬅️, p.p)) p.invposcur -=1
 	if(btnp(➡️, p.p)) p.invposcur +=1
 	p.invposcur %= #recipies
 	p.invselect = recipies[p.invposcur+1]
 	p.invreq = p.invselect[p.invselect.unlocked].req
-
+	--debugvar = p.invposcur
+	debugvar1 = tools[p.invposcur+1].maxi+1
+	debugvar2 = p.invselect.unlocked
 	--crafting
-	if btnp(4,p.p) then 
+	if btnp(🅾️,p.p) then 
 		cancraft = true
-		for i in all(p.invreq) do
-			if(inv[i.item.id].n < i.n) cancraft=false
+		if p.invselect.unlocked==tools[p.invposcur+1].maxi+1 then
+			cancraft=false
+		else
+			for i in all(p.invreq) do
+				if(inv[i.item.id].n < i.n) cancraft=false
+			end
 		end
-
 		if cancraft then
 			for i in all(p.invreq) do 
 				inv[i.item.id].n -= i.n
