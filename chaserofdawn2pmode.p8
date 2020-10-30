@@ -60,7 +60,7 @@ function makeplayer(pl,x,y)
 	debug4=nil,
 	debug5=nil,
 	debug6=nil,
-	}
+}
 end
 --players
 num_players=0
@@ -248,7 +248,6 @@ recipies = {
 		},
 	}
 }
-
 tools={
 	{s=69, maxi=3,n=1,name="PICKAXE"},
 	{s=85, maxi=3,n=1,name="AXE"},
@@ -558,25 +557,29 @@ function drawcraft(p)
 	local columns = 3
 	local x = 0
 	local y = 0
-	printo("REQUIRED:", x1-10, y2+3, p.cucol)
-	for r in all(p.invreq) do
-		uy = flr(iy)
-		x3 = x2+ (15*x)-23
-		y3 = y2+(12*flr(y))+11
-		x4 = x3+7
-		y4 = y3+7
+	if(p.invselect.unlocked==tools[p.invposcur+1].maxi+1)then
+		printo("MAX LVL", x1-10, y2+3, p.cucol)
+	else
+		printo("REQUIRED:", x1-10, y2+3, p.cucol)
+		for r in all(p.invreq) do
+			uy = flr(iy)
+			x3 = x2+ (15*x)-23
+			y3 = y2+(12*flr(y))+11
+			x4 = x3+7
+			y4 = y3+7
 
-		local hasallitems = false
-		if(inv[r.item.id].n >= r.n) hasallitems = true
-		local squarecolor = hasallitems and 3 or p.scol
-		rectfill(x3-1, y3-1, x4+1, y4+1, squarecolor)
-		spr(r.item.t, x3, y3)
-		--check mark
-		local textcol = hasallitems and 13 or 7
-		printo(r.n, x3+6, y3+5, p.cucol, textcol)
-		x=(x+1)%columns
-		if(i%columns==0) y+=1
-		i+=1
+			local hasallitems = false
+			if(inv[r.item.id].n >= r.n) hasallitems = true
+			local squarecolor = hasallitems and 3 or p.scol
+			rectfill(x3-1, y3-1, x4+1, y4+1, squarecolor)
+			spr(r.item.t, x3, y3)
+			--check mark
+			local textcol = hasallitems and 13 or 7
+			printo(r.n, x3+6, y3+5, p.cucol, textcol)
+			x=(x+1)%columns
+			if(i%columns==0) y+=1
+			i+=1
+		end
 	end
 end
 
