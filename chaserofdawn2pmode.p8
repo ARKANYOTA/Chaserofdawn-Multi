@@ -41,6 +41,8 @@ function makeplayer(pl,x,y)
 	targ=0,
 	mining=false,
 	mineprogr=0,
+	minecurx=0,
+	minecury=0,
 	
 	col=cols[pl+1],
 	scol=shadowcols[pl+1],
@@ -280,8 +282,19 @@ function _update60()
 				movement(p)
 				--mining
 				p.mining=btn(🅾️,p.p)
-				if p.mining then		
-					p.mineprogr+=1
+				if p.mining then
+					if p.mineprogr==0 then
+						p.minecurx=p.cux
+						p.minecury=p.cuy
+						p.mineprogr+=1
+					else 
+						if (p.minecurx==p.cux and p.minecury==p.cuy) then
+							p.mineprogr+=1
+						else
+							p.mineprogr=0
+						end
+					end
+					
 				else
 					p.mineprogr=0
 				end
